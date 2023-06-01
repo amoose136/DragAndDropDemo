@@ -1,0 +1,129 @@
+<html>
+    <head>
+        <style>
+            #container {
+                display: grid;
+                width: 100%;
+                justify-content: center;
+                justify-items: center;
+            }
+            #drop_zone {
+                width: fit-content;
+                padding: 30px;
+                margin: 15px;
+                border: 2px dashed #bbb;
+                border-radius: 5px;
+                justify-content: center;
+                overflow: auto;
+                text-align: center;
+                background: #eee;
+            }
+            #drop_zone .tooltiptext {
+                visibility: hidden;
+                background-color: #00000099;
+                color: white;
+                text-align: center;
+                padding: 5px;
+                border-radius: 6px;
+                opacity: 0;
+                position: absolute;
+                z-index: 1;
+            }
+
+            /* Show the tooltip text when you mouse over the tooltip container */
+            #drop_zone:hover .tooltiptext {
+                opacity: 1;
+                transition: opacity 0.2s linear 1.5s;
+                visibility: visible;
+            }
+
+            /* Restrict image size */
+            img {
+                max-width: 500px;
+                max-height: 500px;
+            }
+        </style>
+        <script type="text/javascript">
+            window.onload = function () {
+                // Supported file types
+                const supportedFileTypes = [
+                    "image/jpeg",
+                    "image/png",
+                    "image/svg+xml",
+                ];
+
+                function handleFileSelect(evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+
+                    var files = evt.dataTransfer.files; // FileList object.
+
+                    // Reset border color and message
+                    dropZone.style.borderColor = "#bbb";
+                    dropZone.innerHTML = "Drop files here";
+
+                    // Loop through the FileList
+                    for (var i = 0, f; (f = files[i]); i++) {
+                        // Only process image files.
+                        if (!supportedFileTypes.includes(f.type)) {
+                            // Show error message if file type is not supported
+                            dropZone.style.borderColor = "red";
+                            dropZone.innerHTML =
+                                "Unsupported file type. Please try JPEG, PNG, or SVG.";
+
+                            // Reset the message and border color after 15 seconds
+                            setTimeout(() => {
+                                dropZone.style.borderColor = "#bbb";
+                                dropZone.innerHTML = "Drop files here";
+                            }, 15000);
+                            continue;
+                        }
+
+                        var reader = new FileReader();
+
+                        // Closure to capture the file information.
+                        reader.onload = (function (theFile) {
+                            return function (e) {
+                                // Render thumbnail.
+                                document.getElementById("image").src =
+                                    e.target.result;
+                                document.getElementById("image").title = escape(
+                                    theFile.name
+                                );
+                            };
+                        })(f);
+
+                        // Read in the image file as a data URL.
+                        reader.readAsDataURL(f);
+                    }
+                }
+
+                function handleDragOver(evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    evt.dataTransfer.dropEffect = "copy"; // Explicitly show this is a copy.
+                    dropZone.style.borderColor = "lightgreen";
+                }
+
+                function handleDragLeave(evt) {
+                    dropZone.style.borderColor = "#bbb";
+                }
+
+                // Setup the dnd listeners.
+                var dropZone = document.getElementById("drop_zone");
+                dropZone.addEventListener("dragover", handleDragOver, false);
+                dropZone.addEventListener("drop", handleFileSelect, false);
+                dropZone.addEventListener("dragleave", handleDragLeave, false);
+            };
+        </script>
+    </head>
+    <body>
+        <div id="container">
+            <div id="drop_zone">
+                Drop files here
+                <span class="tooltiptext">Supported: svg, jpg, or png</span>
+            </div>
+            <img id="image" />
+        </div>
+    </body>
+</html>
