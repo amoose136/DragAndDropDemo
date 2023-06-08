@@ -19,12 +19,38 @@
             const dropArea = document.getElementById('drop_area');
             const output = document.getElementById('output');
 
+            let lastDraggedTypes = null;
+
             dropArea.addEventListener('dragover', event => {
                 event.preventDefault();
 
                 const types = event.dataTransfer.types;
+                lastDraggedTypes = types;
                 output.textContent = `Dragged types: ${types}`;
                 console.log(`Dragged types: ${types}`);
+            });
+
+            dropArea.addEventListener('drop', event => {
+                event.preventDefault();
+
+                const files = event.dataTransfer.files;
+                output.textContent += `\nDropped files: ${files.length}`;
+                console.log(`Dropped files: ${files.length}`);
+
+                for (const file of files) {
+                    output.textContent += `\nFile name: ${file.name}, size: ${file.size} bytes, type: ${file.type}`;
+                    console.log(`File name: ${file.name}, size: ${file.size} bytes, type: ${file.type}`);
+                }
+
+                lastDraggedTypes = null;
+            });
+
+            dropArea.addEventListener('dragleave', event => {
+                if (lastDraggedTypes) {
+                    output.textContent += `\nDragged item of types ${lastDraggedTypes} has left the drop area.`;
+                    console.log(`Dragged item of types ${lastDraggedTypes} has left the drop area.`);
+                    lastDraggedTypes = null;
+                }
             });
         </script>
     </body>
